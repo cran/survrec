@@ -426,7 +426,7 @@ function (formula, data, q, B=500, boot.F="WC",boot.G="none",...)
                          as.integer(B),
                          as.integer(type.boot), 
                          as.double(q),
-                         as.double(rep(0,B)))
+                         as.double(rep(0,B)), PACKAGE = "survrec")
 
            ans[[i]]<-list(NULL)
            ans[[i]]$t0<-q.search(survfitr(Sr~1,type=type),q=q)
@@ -471,7 +471,7 @@ function (formula, data, q, B=500, boot.F="WC",boot.G="none",...)
                          as.integer(B),
                          as.integer(type.boot), 
                          as.double(q),
-                         as.double(rep(0,B)))
+                         as.double(rep(0,B)), PACKAGE = "survrec")
                      
            ans<-NULL
            ans$t0<-q.search(survfitr(Sr~1,type=type),q=q)

@@ -1,5 +1,5 @@
 Package: survrec
-Version: 1.1-1
+Version: 1.1-2
 Date: 2003-November-10
 Depends: R (>= 1.8.0), boot
 Title: Survival analysis for recurrent event data
@@ -10,3 +10,4 @@ Description: Estimation of survival function for recurrent event
              estimators and MLE estimation under a Gamma Frailty model.
 License: GPL2
 URL: http://www.r-project.org
+Packaged: Fri Dec 10 19:17:48 2004; hornik
