@@ -1,7 +1,7 @@
 Package: survrec
-Version: 1.0-4
-Date: 2003-April-10
-Depends: R (>= 1.7.0)
+Version: 1.1-1
+Date: 2003-November-10
+Depends: R (>= 1.8.0), boot
 Title: Survival analysis for recurrent event data
 Author: F77 original by Edsel A Peña <pena@stat.sc.edu> and Robert L Strawderman <rls@cornell.edu>. Added Fortran routines, R code and packaged by Juan R González <jrgonzalez@ico.scs.es>.
 Maintainer: Juan R González <jrgonzalez@ico.scs.es>

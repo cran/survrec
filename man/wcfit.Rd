@@ -50,6 +50,13 @@ Wang, M.-C. and Chang, S.-H. (1999). Nonparametric Estimation of a Recurrent Sur
 
 }
 
+\note{ The mantainer wishes to thank Professors Chiung-Yu Huang and Shu-Hui Chang
+for their help for providing us with the Fortran code which computes
+standard errors of Wang and Chang's estimator.
+
+}
+
+
 \seealso{ \code{\link{survfitr}} \code{\link{Survr}}}
 
 \examples{
@@ -58,7 +65,7 @@ data(MMC)
 
 fit<-wc.fit(Survr(MMC$id,MMC$time,MMC$event))
 fit
-plot(fit)
+plot(fit,conf.int=FALSE)
 
 # compare with pena-straderman-hollander
 

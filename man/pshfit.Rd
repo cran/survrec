@@ -52,7 +52,7 @@ please refer to Pe\~na, Strawderman and Hollander (2001, JASA).
 data(MMC)
 fit<-psh.fit(Survr(MMC$id,MMC$time,MMC$event))
 fit
-plot(fit)
+plot(fit,conf.int=FALSE)
 
 # compare with MLE Frailty
 

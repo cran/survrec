@@ -4,7 +4,7 @@ function (id,time,event)
  
     if(length(unique(id))!=length(event[event==0]))
       {
-        stop("data doesn't match")
+        stop("Data doesn't match. Every subject must have a censored time")
       }
 
     if(length(unique(event))>2 | max(event)!=1 | min(event)!=0)
@@ -25,146 +25,110 @@ inherits(x, "Survr")
 
 
 "psh.fit" <-
-function(x,tvals)
+function (x, tvals) 
 {
+    if (!is.Survr(x)) {
+        stop("\n x must be a Survr object")
+    }
+    n <- length(unique(x[, 1]))
+    failed <- c(x[, 2][x[, 3] == 1])
+    censored <- c(x[, 2][x[, 3] == 0])
+    m <- table(x[, 1]) - 1
+    sfailed <- sort(failed)
+    nfailed <- length(failed)
+    summ <- .Fortran("distinctfailed", as.integer(n), as.integer(m), 
+        as.double(failed), as.double(sfailed), as.integer(nfailed), 
+        as.double(censored), as.integer(0), as.double(rep(0, 
+            nfailed)), as.integer(rep(0, nfailed)), as.integer(rep(0, 
+            n * nfailed)), PACKAGE = "survrec")
+    numdistinct <- summ[[7]]
+    distinct <- summ[[8]][1:numdistinct]
+    numdeaths <- summ[[9]][1:numdistinct]
+    vAtRisk <- summ[[10]][1:(n * numdistinct)]
+    AtRisk <- matrix(vAtRisk, nrow = n, ncol = numdistinct)
+    survfuncPSHple <- vector("numeric", numdistinct)
+    AtRiskTotals <- t(AtRisk) %*% c(rep(1, n))
+    survfuncPSHple.i <- 1 - (numdeaths/AtRiskTotals)
+    survfuncPSHple <- cumprod(survfuncPSHple.i)
 
-      if (!is.Survr(x)) 
-      {
-           stop("\n x must be a Survr object")
-      }
+    se.NA<-cumsum(numdeaths/(AtRiskTotals)^2)
+    se.PLE<-sqrt(se.NA*survfuncPSHple^2) 
 
-       n <- length(unique(x[,1]))
-       failed<-c(x[,2][x[,3]==1])
-       censored<-c(x[,2][x[,3]==0])
-       m <- table(x[, 1])-1
-
-       sfailed<-sort(failed)
-       nfailed<-length(failed)
-
-       summ <- .Fortran("distinctfailed",
-                         as.integer(n),
-                         as.integer(m),
-                         as.double(failed),
-                         as.double(sfailed),
-                         as.integer(nfailed),
-                         as.double(censored),
-                         as.integer(0),
-                         as.double(rep(0,nfailed)),
-                         as.integer(rep(0,nfailed)),
-                         as.integer(rep(0,n*nfailed)),PACKAGE="survrec")
-       numdistinct <- summ[[7]]
-       distinct <- summ[[8]][1:numdistinct]
-       numdeaths <- summ[[9]][1:numdistinct]
-       vAtRisk <- summ[[10]][1:(n*numdistinct)]
-       AtRisk<-matrix(vAtRisk,nrow=n,ncol=numdistinct)
-
-       survfuncPSHple <- vector("numeric", numdistinct)
-       AtRiskTotals <- t(AtRisk) %*% c(rep(1, n))
-
-       survfuncPSHple.i<- 1-(numdeaths/AtRiskTotals)
-       survfuncPSHple<-cumprod(survfuncPSHple.i)
-        
-       if(!missing(tvals))
-        {
-          tvalslen <- length(tvals)
-          tvals.o<-sort(tvals)
-          PSHpleAttvals<-surv.search(tvals.o,distinct,survfuncPSHple)
-        }
-       else
-        {
-          tvals<-NA
-          PSHpleAttvals<-NA
-        }
-
-       ans<-list(n = n, m = m, failed = failed, censored = censored,
-                 time = distinct, n.event=numdeaths, AtRisk = AtRisk,
-                survfunc = survfuncPSHple, tvals = tvals, PSHpleAttvals
-                 = PSHpleAttvals)
-       oldClass(ans)<-"survfitr"
-       ans
-
+    if (!missing(tvals)) {
+        tvalslen <- length(tvals)
+        tvals.o <- sort(tvals)
+        PSHpleAttvals <- surv.search(tvals.o, distinct, survfuncPSHple)
+    }
+    else {
+        tvals <- NA
+        PSHpleAttvals <- NA
+    }
+    ans <- list(n = n, m = m, failed = failed, censored = censored, 
+        time = distinct, n.event = numdeaths, AtRisk = AtRisk, 
+        survfunc = survfuncPSHple, std.error=se.PLE,tvals = tvals, 
+        PSHpleAttvals = PSHpleAttvals)
+    oldClass(ans) <- "survfitr"
+    ans
 }
 
 
+
+
 "wc.fit" <-
-function(x,tvals)
+function (x, tvals) 
 {
-      if (!is.Survr(x)) 
-      {
-           stop("\n x must be a Survr object")
-      }
+    if (!is.Survr(x)) {
+        stop("\n x must be a Survr object")
+    }
+    n <- length(unique(x[, 1]))
+    failed<-c(x[,2][x[,3]==1]) 
+    gap <- c(x[, 2])
+    cen.gap <- c(x[, 2][x[, 3] == 0])
+    event <- c(x[,3])
+    tot <- length(gap) 
+    distinct <- sort(unique(c(x[, 2][x[, 3] == 1])))    
+    ndistinct <- length(distinct)
+    uid <- unique(x[, 1])
+    m <- as.integer(table(x[, 1]))
+    mMax<-max(m)
+    wt<-rep(1,n)
+        
+    summ <- .Fortran("wc2",
+		  as.integer(n),
+		  as.double(matrix(0,nrow=n,ncol=mMax)),
+		  as.double(wt),
+		  as.double(m),
+		  as.integer(mMax),
+		  as.integer(m),
+		  as.double(matrix(0,nrow=n,ncol=mMax)),
+		  as.double(m - 1),
+		  as.integer(ndistinct),
+		  as.double(distinct),
+		  as.integer(tot),
+		  as.double(gap),		  
+                  as.double(event),		  
+                  r=as.double(rep(0,ndistinct)),
+		  d=as.double(rep(0,ndistinct)),
+		  surv=as.double(rep(0,ndistinct)),
+		  var=as.double(rep(0,ndistinct)),  PACKAGE = "survrec")
+ 
+    survfuncWCple <- summ$surv
 
-       n <- length(unique(x[,1]))
-       failed<-c(x[,2][x[,3]==1])
-       censored<-c(x[,2][x[,3]==0])
-       m <- table(x[, 1])-1
-   
-       sfailed<-sort(failed)
-       nfailed<-length(failed)
-
-        summ <- .Fortran("distinctfailed",
-                         as.integer(n),
-                         as.integer(m),
-                         as.double(failed),
-                         as.double(sfailed),
-                         as.integer(nfailed),
-                         as.double(censored),
-                         as.integer(0),
-                         as.double(rep(0,nfailed)),
-                         as.integer(rep(0,nfailed)),
-                         as.integer(rep(0,n*nfailed)),PACKAGE="survrec")
-
-        numdistinct <- summ[[7]]
-        distinct <- summ[[8]][1:numdistinct]
-        numdeaths <- summ[[9]][1:numdistinct]
-        vAtRisk <- summ[[10]][1:(n*numdistinct)]
-        AtRisk<-matrix(vAtRisk,nrow=n,ncol=numdistinct)
-
-        wcPLE<- .Fortran("wcple",
-                       as.integer(n),
-                       as.integer(m),
-                       as.double(failed),
-                       as.integer(nfailed),
-                       as.double(censored),
-                       as.integer(numdistinct),
-                       as.double(distinct),
-                       as.integer(c(vAtRisk)),
-                       as.double(rep(0,n*numdistinct)),
-                       as.double(rep(0,n*numdistinct)),
-                       as.double(rep(0,n)),PACKAGE="survrec")
-
-        dstar<-matrix(wcPLE[[9]],n,numdistinct)
-        rstar<-matrix(wcPLE[[10]],n,numdistinct)
-        mstar<-wcPLE[[11]]
-       
-        dstarcum <- t(dstar) %*% (c(rep(1, n))/mstar)
-        rstarcum <- t(rstar) %*% (c(rep(1, n))/mstar)
-
-        survfuncWCple.i<-function(i,x,y)
-                          {
-                            exp(sum(log(1 - (x[1:i]/y[1:i]))))
-                          }
-
-        survfuncWCple<-sapply(1:numdistinct,survfuncWCple.i,x=dstarcum,y=rstarcum)
-             
-        if(!missing(tvals))
-         { 
-          tvalslen <- length(tvals)
-          tvals.o<-sort(tvals)
-          WCpleAttvals<-surv.search(tvals.o,distinct,survfuncWCple)
-         }
-        else
-         {
-          tvals<-NA
-          WCpleAttvals<-NA     
-         } 
-
-        ans<-list(n = n, m = m, failed = failed, censored = censored, 
-                 time = distinct, n.event=numdeaths, AtRisk = AtRisk,
-               survfunc = survfuncWCple, tvals = tvals, WCpleAttvals = 
-                   WCpleAttvals)
-        oldClass(ans)<-"survfitr"
-        ans
+    if (!missing(tvals)) {
+        tvalslen <- length(tvals)
+        tvals.o <- sort(tvals)
+        WCpleAttvals <- surv.search(tvals.o, distinct, survfuncWCple)
+    }
+    else {
+        tvals <- NA
+        WCpleAttvals <- NA
+    }
+    ans <- list(n = n, m = m, failed = failed, censored = cen.gap, 
+        time = distinct, n.event = summ$d, AtRisk = summ$r, 
+        survfunc = survfuncWCple, std.error=summ$var, tvals = tvals, 
+        WCpleAttvals = WCpleAttvals)
+    oldClass(ans) <- "survfitr"
+    ans
 }
 
 
@@ -304,6 +268,19 @@ function (tvals,time,surv)
 }
 
 
+"q.search" <-
+function (f, q=0.5) 
+{
+     tt <- c(0, f$time)
+     ss <- c(1, f$surv)
+     if(ss[length(ss)] > q)
+        stop(paste("\noverall survival estimate does not fall below ",q))
+     ans<-min(tt[ss <= q])
+     return(ans)
+}
+
+
+
 "survfitr" <-
 function (formula, data, type="MLEfrailty",...) 
 {
@@ -311,7 +288,7 @@ function (formula, data, type="MLEfrailty",...)
              "wang-chang", "MLEfrailty"), nomatch= 0)
    if(method == 0)
 	{
-	  stop("estimator must be pena-strawderman-hollander wang-chang or mlefrailty")
+	  stop("estimator must be pena-strawderman-hollander wang-chang or MLEfrailty")
         }
 
     call <- match.call()
@@ -335,14 +312,13 @@ function (formula, data, type="MLEfrailty",...)
     if (!is.Survr(Y)) 
         stop("Response must be a survival recurrent object")
     ll <- attr(Terms, "term.labels")
-    group <- m[ll][, 1]
-
-
+    
     if(method==1) FUN<-psh.fit
     if(method==2) FUN<-wc.fit
     if(method==3) FUN<-mlefrailty.fit
 
-    if (!is.null(group)) {
+    if (ncol(m)>1) {
+        group <- m[ll][, 1]  
         k <- levels(group)
         ans <- NULL
         for (i in 1:length(k)) {
@@ -362,12 +338,165 @@ function (formula, data, type="MLEfrailty",...)
     ans
 }
 
+"survdiffr" <-
+function (formula, data, q, B=500, boot.F="WC",boot.G="none",...) 
+{
+   method.F <- charmatch(boot.F, c("PSH","WC", "semiparametric"), nomatch= 0)
+   if(method.F == 0)
+	{
+	  stop("bootstrap froom F must be PSH WC or semiparametric")
+        }
+   if(method.F == 3)
+        {
+          stop("Problems with Fortran code. Please contact with mantainer") 
+        }
 
+   method.G <- charmatch(boot.G, c("none","empirical"), nomatch= 0)
+   if(method.G == 0)
+	{
+	  stop("bootstrap from G must be none or empirical")
+        }
+
+   if (method.F==1) {
+        type.boot <- 2 + method.G - 1
+        type <- "p"
+     }  
+   if (method.F==2) {
+        type.boot <- 4 + method.G - 1 
+        type <- "w"
+     }  
+   if (method.F==3) {
+        type.boot <- 6 + method.G - 1
+        type <- "M"
+     }  
+
+
+    call <- match.call()
+    if ((mode(call[[2]]) == "call" && call[[2]][[1]] == as.name("Survr")) || 
+        inherits(formula, "Survr")) {
+
+    stop("formula.default(object): invalid formula")
+     }
+
+    m <- match.call(expand = FALSE)
+    m$q<-  m$B<-  m$boot.F<- m$... <- NULL
+    Terms <- terms(formula, "strata")
+    ord <- attr(Terms, "order")
+    if (length(ord) & any(ord != 1)) 
+        stop("Interaction terms are not valid for this function")
+    m$formula <- Terms
+    m[[1]] <- as.name("model.frame")
+    m <- eval(m, sys.parent())
+    n <- nrow(m)
+    Y <- model.extract(m, response)
+    if (!is.Survr(Y)) 
+        stop("Response must be a survival recurrent object")
+    ll <- attr(Terms, "term.labels")
+    group <- m[ll][, 1]
+
+
+    if (!is.null(group)) {
+        k <- levels(group)
+        ans <-list(NULL)
+        for (i in 1:length(k)) {
+            temp <- Y[group == k[i], ]
+            Sr <- Survr(temp[, 1], temp[, 2], temp[, 3])
+            n <- length(unique(Sr[,1]))
+            failed<-c(Sr[,2][Sr[,3]==1])
+            censored<-c(Sr[,2][Sr[,3]==0])
+            m <- table(Sr[, 1])-1
+
+           sfailed<-sort(failed)
+           nfailed<-length(failed)
+
+           tau<-rep(NA,n)
+           id.unique<-unique(Sr[,1])
+           for (j in 1:n)
+            {
+             tau[j]<-sum(Sr[,2][Sr[,1]==id.unique[j]])
+            }
+           summ <- .Fortran("bootmedian",
+                         as.integer(n),
+                         as.integer(m),
+                         as.double(failed),
+                         as.double(sfailed),
+                         as.integer(nfailed),
+                         as.double(censored),
+                         as.double(tau),
+                         as.integer(B),
+                         as.integer(type.boot), 
+                         as.double(q),
+                         as.double(rep(0,B)))
+
+           ans[[i]]<-list(NULL)
+           ans[[i]]$t0<-q.search(survfitr(Sr~1,type=type),q=q)
+           ans[[i]]$t<-cbind(summ[[11]])
+           ans[[i]]$R<-B
+           ans[[i]]$data<-unclass(Sr)
+           ans[[i]]$seed<-.Random.seed
+           ans[[i]]$statistic<-NULL
+           ans[[i]]$sim<-c("ordinary")
+           ans[[i]]$call<-call
+           ans[[i]]$stype<-c("i")
+           ans[[i]]$strata<-rep(1,nrow(Sr))
+           ans[[i]]$weights<-rep(1/nrow(Sr),nrow(Sr))
+           oldClass(ans[[i]])<-"boot"
+         }
+         names(ans)<-k
+    }
+    else {
+            Sr<-Survr(Y[,1],Y[,2],Y[,3]) 
+            n <- length(unique(Sr[,1]))
+            failed<-c(Sr[,2][Sr[,3]==1])
+            censored<-c(Sr[,2][Sr[,3]==0])
+            m <- table(Sr[, 1])-1
+
+           sfailed<-sort(failed)
+           nfailed<-length(failed)
+
+           tau<-rep(NA,n)
+           id.unique<-unique(Sr[,1])
+           for (i in 1:n)
+            {
+             tau[i]<-sum(Sr[,2][Sr[,1]==id.unique[i]])
+            }
+           summ <- .Fortran("bootmedian",
+                         as.integer(n),
+                         as.integer(m),
+                         as.double(failed),
+                         as.double(sfailed),
+                         as.integer(nfailed),
+                         as.double(censored),
+                         as.double(tau),
+                         as.integer(B),
+                         as.integer(type.boot), 
+                         as.double(q),
+                         as.double(rep(0,B)))
+                     
+           ans<-NULL
+           ans$t0<-q.search(survfitr(Sr~1,type=type),q=q)
+           ans$t<-cbind(summ[[11]])
+           ans$R<-B
+           ans$data<-unclass(Sr)
+           ans$seed<-.Random.seed
+           ans$statistic<-NULL
+           ans$sim<-c("ordinary")
+           ans$call<-call
+           ans$stype<-c("i")
+           ans$strata<-rep(1,nrow(Sr))
+           ans$weights<-rep(1/nrow(Sr),nrow(Sr))
+           oldClass(ans)<-"boot"
+    
+    }
+
+ans
+
+}
 
 
 
 "plot.survfitr" <-
-function (x, prob=FALSE,...) 
+function (x, conf.int=TRUE, prob = FALSE, ...) 
 {
     dostep <- function(x, y) {
         if (is.na(x[1] + y[1])) {
@@ -386,44 +515,66 @@ function (x, prob=FALSE,...)
             list(x = x, y = y)
         else list(x = x[c(1, 2, 2)], y = y[c(1, 1, 2)])
     }
+    y.lab <- ifelse(prob, "Probability Estimates", "Survivor Probability Estimates")
+    if (!prob) {
+        if (!is.null(attr(x, "strata"))) {
+            plot(dostep(x[[1]]$time, x[[1]]$surv), type = "n", 
+                xlab = "Time", ylab = y.lab, ...)
+            for (i in 1:attr(x, "strata")) {
+                y <- x[[i]]$surv
+                if((is.null(x[[i]]$std.error)) || (!conf.int))
+                   e<-1
+                else 
+                   e <- x[[i]]$std.error
+                lines(dostep(x[[i]]$time, y), col = i)
+                lines(dostep(x[[i]]$time, y+qnorm(0.975)*e), col=i, lty=2)
+                lines(dostep(x[[i]]$time, y-qnorm(0.975)*e), col=i, lty=2)
+            }
+        }
+        else {
+            y <- x$surv
+            if((is.null(x$std.error)) || (!conf.int))
+              e<-1
+            else 
+              e <- x$std.error
+            plot(dostep(x$time, y), type = "l", ylim = c(0, max(y)), 
+                xlab = "Time", ylab = y.lab)
+            lines(dostep(x$time, y+qnorm(0.975)*e),lty=2)
+            lines(dostep(x$time, y-qnorm(0.975)*e),lty=2)
 
-y.lab<-ifelse(prob,"Probability Estimates","Survivor Probability Estimates")
-
-
-if(!prob){
-    if (!is.null(attr(x, "strata")))  {
-        plot(dostep(x[[1]]$time, x[[1]]$surv), type = "n", xlab = "Time", 
-            ylab = y.lab, ...)
-        for (i in 1:attr(x, "strata")) {
-            lines(dostep(x[[i]]$time, x[[i]]$surv),lty=i)
         }
     }
     else {
-        y <- x$survfunc
-        plot(dostep(x$time, y), type = "l", ylim = c(0, max(y)), 
-            xlab = "Time", ylab =y.lab)
-    }
+        if (!is.null(attr(x, "strata"))) {
+            plot(dostep(x[[1]]$time, 1 - x[[1]]$surv), type = "n", 
+                xlab = "Time", ylab = y.lab, ...)
+            for (i in 1:attr(x, "strata")) {
+                y <- x[[i]]$surv
+                if((is.null(x[[i]]$std.error)) || (!conf.int))
+                   e<-1
+                else 
+                   e <- x[[i]]$std.error
+                lines(dostep(x[[i]]$time, 1-y), col = i)
+                lines(dostep(x[[i]]$time, 1-y+qnorm(0.975)*e), col=i, lty=2)
+                lines(dostep(x[[i]]$time, 1-y-qnorm(0.975)*e), col=i, lty=2)
 
-}
-
-else{
-    if (!is.null(attr(x, "strata")))  {
-        plot(dostep(x[[1]]$time, 1-x[[1]]$surv), type = "n", xlab = "Time", 
-            ylab = y.lab, ...)
-        for (i in 1:attr(x, "strata")) {
-            lines(dostep(x[[i]]$time, 1-x[[i]]$surv),lty=i)
+            }
+        }
+        else {
+            y <- x$surv
+            if((is.null(x$std.error)) || (!conf.int))
+                e<-1
+            else 
+                e <- x$std.error
+            plot(dostep(x$time, 1 - y), type = "l", ylim = c(0, 
+                max(y)), xlab = "Time", ylab = y.lab)
+            lines(dostep(x$time, 1 - y+qnorm(0.975)*e),lty=2)
+            lines(dostep(x$time, 1 - y-qnorm(0.975)*e),lty=2)
         }
     }
-    else {
-        y <- x$survfunc
-        plot(dostep(x$time, 1-y), type = "l", ylim = c(0, max(y)), 
-            xlab = "Time", ylab = y.lab)
-    }
-
-}
-
     return(invisible())
 }
+
 
 
 "lines.survfitr"<-
@@ -478,7 +629,10 @@ function (x,scale=1,digits = max(options()$digits - 4, 3), ...)
 
                 stime<-x$time/scale
            	    n <- length(stime)
-          	    n.risk<-apply(x$AtRisk,2,sum)
+          	    if (is.matrix(x$AtRisk))
+                      {n.risk<-apply(x$AtRisk,2,sum)}
+                    else
+                      {n.risk<-x$AtRisk}
                 hh <- c(x$n.event[ - n]/(n.risk[ - n] * (n.risk[ - n] - x$n.event[ - n])), 0)
 	       
                 med <- minmin(x$survfunc, x$time)
@@ -527,36 +681,69 @@ invisible(x)
 
 
 "summary.survfitr" <-
-function (object,...) 
+function (object, ...) 
 {
-  x<-object
-  if (!inherits(x, "survfitr")) 
+    x <- object
+    if (!inherits(x, "survfitr")) 
         stop("Invalid data")
-  
-  plab<-c("time","n.event","n.risk","surv")
-
-  if(!is.null(attr(x,"strata")))
-     {
-       ans<-list(NA)
-       for (i in 1:attr(x,"strata"))
-         {
-          n.risk<-apply(x[[i]]$AtRisk,2,sum)
-          temp<-cbind(x[[i]]$time,x[[i]]$n.event,n.risk,x[[i]]$surv)
-          dimnames(temp)<-list(rep("",nrow(temp)),plab)
-          ans[[i]]<-temp
-         }
-       names(ans)<-names(x)
-       oldClass(ans)<-"summary.survfitr"
-       attr(ans,"strata")<-attr(x,"strata")
-     }
-  else
-     {
-          n.risk<-apply(x$AtRisk,2,sum)
-          temp<-cbind(x$time,x$n.event,n.risk,x$surv)
-          dimnames(temp)<-list(rep("",nrow(temp)),plab)
-          ans<-temp
-     }  
- ans
+    if (is.null(x[[1]]$std.error)) {
+        plab <- c("time", "n.event", "n.risk", "surv")
+        if (!is.null(attr(x, "strata"))) {
+            ans <- list(NA)
+            for (i in 1:attr(x, "strata")) {
+                if (is.matrix(x[[i]]$AtRisk))
+                    {n.risk<-apply(x[[i]]$AtRisk,2,sum)}
+                else
+                    {n.risk<-x[[i]]$AtRisk}
+                temp <- cbind(x[[i]]$time, x[[i]]$n.event, n.risk, 
+                  x[[i]]$surv)
+                dimnames(temp) <- list(rep("", nrow(temp)), plab)
+                ans[[i]] <- temp
+            }
+            names(ans) <- names(x)
+            oldClass(ans) <- "summary.survfitr"
+            attr(ans, "strata") <- attr(x, "strata")
+        }
+        else {
+            if (is.matrix(x$AtRisk))
+              n.risk<-apply(x$AtRisk,2,sum)
+            else
+              n.risk<-x$AtRisk
+            temp <- cbind(x$time, x$n.event, n.risk, x$surv)
+            dimnames(temp) <- list(rep("", nrow(temp)), plab)
+            ans <- temp
+        }
+    }
+    else {
+        plab <- c("time", "n.event", "n.risk", "surv", "std.error")
+        if (!is.null(attr(x, "strata"))) {
+            ans <- list(NA)
+            for (i in 1:attr(x, "strata")) {
+                if (is.matrix(x[[i]]$AtRisk))
+                    {n.risk<-apply(x[[i]]$AtRisk,2,sum)}
+                else
+                    {n.risk<-x[[i]]$AtRisk}
+                temp <- cbind(x[[i]]$time, x[[i]]$n.event, n.risk, 
+                  x[[i]]$surv, x[[i]]$std.error)
+                dimnames(temp) <- list(rep("", nrow(temp)), plab)
+                ans[[i]] <- temp
+            }
+            names(ans) <- names(x)
+            oldClass(ans) <- "summary.survfitr"
+            attr(ans, "strata") <- attr(x, "strata")
+        }
+        else {
+            if (is.matrix(x$AtRisk))
+              n.risk<-apply(x$AtRisk,2,sum)
+            else
+              n.risk<-x$AtRisk
+            temp <- cbind(x$time, x$n.event, n.risk, x$surv, 
+                x$std.error)
+            dimnames(temp) <- list(rep("", nrow(temp)), plab)
+            ans <- temp
+        }
+    }
+    ans
 }
 
 
@@ -594,8 +781,7 @@ else
 ############ First.lib ###############
 
 .First.lib <- function(lib, pkg){
+   require(boot)
    library.dynam("survrec", pkg, lib)
-   cat("   Survival analysis for recurrent event data installed\n")
-   cat("   created by Juan R Gonzalez, Edsel A Peña and Robert L Strawderman\n")
 }
 ############ End of .First.lib ###############

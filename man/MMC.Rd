@@ -14,8 +14,6 @@
     \item{event}{censoring status. All event are 1 for each subject 
                  excepting last one that it is 0}
     \item{group}{a factor with levels}
-    \item{group}{\code{Males} }
-    \item{group}{\code{Females} }
   }
  Note: The group have been created (at random) to illustrate a group comparison
 

@@ -20,7 +20,8 @@ summary.survfitr(object,...)
 
 \value{
   For one survival curve returns a matrix, and for multiple curves a list with the
-same matrix for each curve.
+same matrix for each curve. This matrix contains the distinct failure times, and the number
+of events, at risk subjects, survival and standard error for each distinct time
 }
 
 \seealso{ \code{\link{survfitr}} }
