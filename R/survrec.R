@@ -14,7 +14,7 @@ function (id,time,event)
 
     ans<-cbind(id,time,event)
 
-    class(ans) <- "Survr"
+    oldClass(ans) <- "Survr"
     invisible(ans)
 
 }
@@ -51,7 +51,7 @@ function(x,tvals)
                          as.integer(0),
                          as.double(rep(0,nfailed)),
                          as.integer(rep(0,nfailed)),
-                         as.integer(rep(0,n*nfailed)))
+                         as.integer(rep(0,n*nfailed)),PACKAGE="survrec")
        numdistinct <- summ[[7]]
        distinct <- summ[[8]][1:numdistinct]
        numdeaths <- summ[[9]][1:numdistinct]
@@ -80,7 +80,7 @@ function(x,tvals)
                  time = distinct, n.event=numdeaths, AtRisk = AtRisk,
                 survfunc = survfuncPSHple, tvals = tvals, PSHpleAttvals
                  = PSHpleAttvals)
-       class(ans)<-"survfitr"
+       oldClass(ans)<-"survfitr"
        ans
 
 }
@@ -112,7 +112,7 @@ function(x,tvals)
                          as.integer(0),
                          as.double(rep(0,nfailed)),
                          as.integer(rep(0,nfailed)),
-                         as.integer(rep(0,n*nfailed)))
+                         as.integer(rep(0,n*nfailed)),PACKAGE="survrec")
 
         numdistinct <- summ[[7]]
         distinct <- summ[[8]][1:numdistinct]
@@ -131,7 +131,7 @@ function(x,tvals)
                        as.integer(c(vAtRisk)),
                        as.double(rep(0,n*numdistinct)),
                        as.double(rep(0,n*numdistinct)),
-                       as.double(rep(0,n)))
+                       as.double(rep(0,n)),PACKAGE="survrec")
 
         dstar<-matrix(wcPLE[[9]],n,numdistinct)
         rstar<-matrix(wcPLE[[10]],n,numdistinct)
@@ -163,7 +163,7 @@ function(x,tvals)
                  time = distinct, n.event=numdeaths, AtRisk = AtRisk,
                survfunc = survfuncWCple, tvals = tvals, WCpleAttvals = 
                    WCpleAttvals)
-        class(ans)<-"survfitr"
+        oldClass(ans)<-"survfitr"
         ans
 }
 
@@ -185,7 +185,7 @@ function (x, tvals, lambda = NULL, alpha = NULL, alpha.min, alpha.max,
         as.double(failed), as.double(sfailed), as.integer(nfailed), 
         as.double(censored), as.integer(0), as.double(rep(0, 
             nfailed)), as.integer(rep(0, nfailed)), as.integer(rep(0, 
-            n * nfailed)))
+            n * nfailed)),PACKAGE="survrec")
     numdistinct <- summ[[7]]
     distinct <- summ[[8]][1:numdistinct]
     numdeaths <- summ[[9]][1:numdistinct]
@@ -209,7 +209,7 @@ function (x, tvals, lambda = NULL, alpha = NULL, alpha.min, alpha.max,
             as.integer(numdistinct), as.double(distinct), as.integer(numdeaths), 
             as.integer(AtRisk), as.double(lambda), as.double(alpha.min), 
             as.double(alpha.max), as.double(tol.max), as.double(0), 
-            as.integer(0))
+            as.integer(0),PACKAGE="survrec")
         alpha <- Seed[[11]]
         if(alpha.console)
                cat("\n Seed Alpha: ", alpha)
@@ -239,7 +239,7 @@ function (x, tvals, lambda = NULL, alpha = NULL, alpha.min, alpha.max,
         Estimates <- .Fortran("emalgo", as.integer(n), as.integer(m), 
             as.integer(numdistinct), as.double(distinct), as.integer(numdeaths), 
             as.integer(AtRisk), as.double(lambda), as.double(alpha), 
-            as.double(tol), as.integer(maxiter), as.integer(status))
+            as.double(tol), as.integer(maxiter), as.integer(status),PACKAGE="survrec")
         status <- Estimates[[11]]
     }
     alpha <- Estimates[[8]]
@@ -270,7 +270,7 @@ function (x, tvals, lambda = NULL, alpha = NULL, alpha.min, alpha.max,
             alpha <- 1e+05
         temp <- .Fortran("mlevalue", as.integer(numdistinct), 
             as.double(alpha), as.double(lambda), as.double(rep(0, 
-                numdistinct)))
+                numdistinct)),PACKAGE="survrec")
         survfuncMLE <- temp[[4]]
         if (!missing(tvals)) {
             tvalslen <- length(tvals)
@@ -286,7 +286,7 @@ function (x, tvals, lambda = NULL, alpha = NULL, alpha.min, alpha.max,
         time = distinct, n.event = numdeaths, AtRisk = AtRisk, 
         status = status, alpha = alpha, lambda=lambda, survfunc = survfuncMLE, 
         tvals = tvals, MLEAttvals = MLEAttvals)
-    class(ans) <- "survfitr"
+    oldClass(ans) <- "survfitr"
     ans
 }
 
@@ -351,7 +351,7 @@ function (formula, data, type="MLEfrailty",...)
             ans[[i]] <- FUN(temp1,...)
         }
         names(ans) <- k
-        class(ans) <- "survfitr"
+        oldClass(ans) <- "survfitr"
         attr(ans, "strata") <- length(k)
         attr(ans, "group") <- ll
     }
@@ -546,7 +546,7 @@ function (object,...)
           ans[[i]]<-temp
          }
        names(ans)<-names(x)
-       class(ans)<-"summary.survfitr"
+       oldClass(ans)<-"summary.survfitr"
        attr(ans,"strata")<-attr(x,"strata")
      }
   else
@@ -571,8 +571,8 @@ if(is.null(attr(x,"strata")))
   {
    # no strata 
     cat("\n")
-     temp<-x
-    class(temp)<-NULL
+    temp<-x
+    oldClass(temp)<-NULL
     print(temp)
     cat("\n")
   }
