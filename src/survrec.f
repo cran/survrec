@@ -1,4 +1,3 @@
-
       integer function countge(vec,nvec,val)
 
         implicit none
@@ -29,7 +28,7 @@ c      sfailed failed times ordered
 c
       implicit none
 
-      integer*8 n,nfailed
+      integer n,nfailed
       integer m(n)
 
       double precision censored(n)
@@ -38,12 +37,12 @@ c
       integer ntempfailed
 
       integer numdeaths(nfailed)
-      double precision distinct(nfailed)
+      double precision distinct(nfailed),current
       integer AtRisk(n,nfailed)
       integer numdistinct
       integer countge
 
-      integer i,j,k,contdeaths,current,mcum,mcumold
+      integer i,j,k,contdeaths,mcum,mcumold
 
 
       numdistinct = 1
@@ -77,7 +76,7 @@ c
           end do
 
           do j=1,numdistinct
-           if (m(i).gt.0) then
+           if (m(i).ge.0) then
             AtRisk(i, j) = countge(tempfailed,ntempfailed,distinct(j))
            end if
            if (censored(i).ge.distinct(j)) then

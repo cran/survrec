@@ -19,7 +19,7 @@ right. For a single survival curve the "~1" part of the formula is required.  }
 value are "pena-strawderman-hollander", "wang-chang" or "MLEfrailty". The default
 is "MLEfrailty". Only the first words are required, e.g "pe","wa","ML"}
 \item{...} {additional arguments passed to the type of estimator.
-             (see \code{psh.fit}, \code{wc.fit}, or \code{mlefrailty.fit}}  }
+             (see \code{psh.fit}, \code{wc.fit}, or \code{mlefrailty.fit})  }
 
 }
 \details{
