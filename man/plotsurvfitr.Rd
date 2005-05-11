@@ -7,8 +7,7 @@
 \description{Additional plots can be added to the same of axes using `lines.survrec'.}
 
 \usage{
-function (x, conf.int=TRUE, prob = FALSE, ...)
-
+plot.survfitr(x, conf.int=TRUE, prob = FALSE, ...)
 }
 
 \arguments{
