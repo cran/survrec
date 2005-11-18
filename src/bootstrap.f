@@ -235,7 +235,8 @@ c	   alpha=1/varZ   y  0 en mleALL
 	   
 	   
 	   call mleALL(n,mBoot,numdistinct,distinct,numdeaths,1,
-     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,status)  
+     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,
+     *    status)  
            
          
            median(ss)=medianMLE
@@ -265,7 +266,8 @@ c	   alpha=1/varZ     y 0 en mleALL
 	   
 	   
         call mleALL(n,mBoot,numdistinct,distinct,numdeaths,1,
-     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,status)  
+     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,
+     *    status)  
 
          
          median(ss)=medianMLE
@@ -848,7 +850,8 @@ c
 
 
       subroutine mleALL(n,m,numdistinct,distinct,numdeaths,searchProc,
-     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,status)  
+     *	   AtRisk,lambda0,lambda,alpha,survMLE,percentil,medianMLE,
+     *    status)  
 
        implicit none
 	 
@@ -935,7 +938,7 @@ c
 	 
       
       return 	
-      end subroutine mleALL   
+      end subroutine 
 
 
 
@@ -1048,8 +1051,8 @@ c        INTEGER, PARAMETER :: dp = SELECTED_REAL_KIND(12, 60)
 	REAL :: fn_val,rand
 
 c	!     Local variables
-	REAL     :: s = 0.449871, t = -0.386595, a = 0.19600, b = 0.25472,           
-     *			  r1 = 0.27597, r2 = 0.27846, u, v, x, y, q
+	REAL :: s=0.449871, t=-0.386595, a = 0.1960, b = 0.25472
+       REAL :: r1 = 0.27597, r2 = 0.27846, u, v, x, y, q
 
 c	!     Generate P = (u,v) uniform in rectangle enclosing acceptance region
 
