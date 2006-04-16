@@ -23,18 +23,17 @@ mean survival time cannot be estimated. Instead, the quantity reported is the me
 restricted to the time before the last censoring. When the las censoring time is not random 
 this quantity is occasionally of interest.
 
-Any randomness in the last censoring time is not taken into account in computing the standard
-error of the restricted mean. The restricted mean is shown mainly for compatibility with S.
-
 The median are defined by drawing a horizontal line at 0.5 on the plot of the survival curve.
   
 }
 \value{
- x, with the invisible flag set
-}
-\sideeffects{The number of observations, the number of events, the restricted mean survival
+x, with the invisible flag set.
+ 
+The number of observations, the number of events, the restricted mean survival
 and its standard error, the median survival and the minimum, maximum and median number of
-recurrences are printed. If there are multiple curves, there is one line of output for each.}
+recurrences are printed. If there are multiple curves, there is one line of output for each.
+}
+
 
 \seealso{ \code{\link{summary.survfitr}},  \code{\link{survfitr}} }
 
@@ -43,4 +42,4 @@ data(MMC)
 fit<-survfitr(Survr(id,time,event)~group,data=MMC)
 print(fit)
 }
-\keyword{survival }
+\keyword{survival}
