@@ -327,7 +327,7 @@ c       aux=rand(taux)
         aux=rand(0)
 	  
         sample2=1
-	do while ((prob(sample2).lt.aux).and.(sample2.le.n))
+	do while ((prob(sample2).lt.aux).and.(sample2.lt.n))
           sample2=sample2+1
 	end do
 	 
