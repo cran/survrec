@@ -22,12 +22,12 @@ tol=1e-07, maxiter=500,alpha.console=TRUE)
   \item{alpha}{optional parameter of shape and scale for the frailty distribution. If this 
                parameter is unknown is estimate via EM algorithm. In order to obtain the 
                convergence of this algorithm a seed is calculated (see details).}
-  \item{alpha.min}{ optional left bound of the alpha parameter in order to obtain a seed to 
+  \item{alpha.min}{optional left bound of the alpha parameter in order to obtain a seed to 
                    estimate alpha parameter. Default value is 0.5.}
-  \item{alpha.max}{ optional rigth bound of the alpha parameter in order to obtain a seed to 
+  \item{alpha.max}{optional rigth bound of the alpha parameter in order to obtain a seed to 
                     estimate alpha  parameter. Default value is the maximum of distinct times 
                     of events.}
-  \item{tol} {optional tolerance of the EM algorithm used to estimate the alpha parameter. Default is 10e-7}
+  \item{tol}{optional tolerance of the EM algorithm used to estimate the alpha parameter. Default is 10e-7}
   \item{maxiter}{optional maximum number of iterations of the EM algorithm used to estimate 
                  the alpha parameter. Default is 500. }
   \item{alpha.console}{if TRUE prints in the console the estimates initial value for alpha and

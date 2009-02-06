@@ -7,7 +7,7 @@
 \description{Additional plots can be added to the same of axes using `lines.survrec'.}
 
 \usage{
-plot.survfitr(x, conf.int=TRUE, prob = FALSE, ...)
+\method{plot}{survfitr}(x, conf.int=TRUE, prob = FALSE, ...)
 }
 
 \arguments{
@@ -18,7 +18,7 @@ plot.survfitr(x, conf.int=TRUE, prob = FALSE, ...)
                  survival function if its value is TRUE or FALSE.}
  \item{prob}{Print of the probability or survival function if its value is 
               TRUE or FALSE respectively.} 
- \item{...} {additional arguments passed to the plot function.}
+ \item{...}{additional arguments passed to the plot function.}
 }
 
 \value{

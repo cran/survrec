@@ -7,7 +7,7 @@ and its standard error, the median survial and the minimum, maximum and median
 number of recurrences for each subject.
 }
 \usage{
-print.survfitr(x, scale=1, digits=max(options()$digits - 4, 3), ...)
+\method{print}{survfitr}(x, scale=1, digits=max(options()$digits - 4, 3), ...)
 }
 \arguments{
   \item{x}{the result of a call to the survfit, psh.fit, wc.fil or mlefrailty.fit functions}

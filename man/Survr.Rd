@@ -12,8 +12,8 @@ is.Survr(x)
 \arguments{
   \item{id}{Identificator of each subject. This value is the same for all recurrent times of each subject.}
   \item{time}{time of reccurence. For each subject the last time are censored.}
-  \item{event}{The status indicator, 0=no recurrence 1=recurrence. Only this values are accepted. }
-  \item{x} {any R object.}
+  \item{event}{The status indicator, 0=no recurrence 1=recurrence. Only this values are accepted.}
+  \item{x}{any R object.}
 }
 \value{
 An object of class Survr. Survr objects are implemented as a matrix of 3 colummns. No method for print.

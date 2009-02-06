@@ -10,7 +10,7 @@ each curve.
 }
 
 \usage{
-summary.survfitr(object,...)
+\method{summary}{survfitr}(object,...)
 }
 
 \arguments{

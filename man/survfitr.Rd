@@ -1,6 +1,6 @@
 \name{survfitr}
 \alias{survfitr}
-\title{ Compute a Survival Curve for Recurrent Event Data given a covariate}
+\title{Compute a Survival Curve for Recurrent Event Data given a covariate}
 \description{
  Computes an estimate of a survival curve for recurrent event data using either 
 the Peña-Strawderman-Hollander, Wang-Chang or MLE Frailty estimators. It also computes
@@ -19,7 +19,7 @@ right. For a single survival curve the "~1" part of the formula is required.  }
   \item{type}{a character string specifying the type of survival curve. Possible
 value are "pena-strawderman-hollander", "wang-chang" or "MLEfrailty". The default
 is "MLEfrailty". Only the first words are required, e.g "pe","wa","ML"}
-\item{...} {additional arguments passed to the type of estimator. }
+\item{...}{additional arguments passed to the type of estimator. }
 
 }
 \details{
