@@ -364,7 +364,7 @@ c
 	    mBoot(i)=m(r)
 	    j=r
 	    if (mBoot(i).eq.0) then
-           write(*,*) "cagada todos son cero"
+c           write(*,*) "problemas todos son cero"
 	    end if
 	   else
 	     j=sample(n)
@@ -406,7 +406,8 @@ c
 	  j=sample2(ntimes,prob)
 	  control=times(j)
 
-	  do while (control.le.tau(i))
+	  do while (control.le.tau(i) .and.
+     *              1+count+ntimesBoot .lt. 800)
   	   timesBoot(1+count+ntimesBoot)=times(j)
 	   count=count+1
 	   j=sample2(ntimes,prob)
@@ -1118,8 +1119,8 @@ c		!LOGICAL, INTENT(IN) :: first
 		REAL                :: fn_val
 
 		IF (s <= zero) THEN
-		  WRITE(*, *) 'SHAPE PARAMETER VALUE MUST BE POSITIVE'
-		  STOP
+c		  WRITE(*, *) 'SHAPE PARAMETER VALUE MUST BE POSITIVE'
+c		  STOP
 		END IF
 
 		IF (s > one) THEN
@@ -1236,16 +1237,16 @@ c        REAL, SAVE :: a, p, c, uf, vr, d
       integer taux  
 
 	IF (s <= zero .OR. s >= one) THEN
-	  WRITE(*, *) 'SHAPE PARAMETER VALUE OUTSIDE PERMITTED RANGE'
-	  STOP
+c	  WRITE(*, *) 'SHAPE PARAMETER VALUE OUTSIDE PERMITTED RANGE'
+c	  STOP
 	END IF
 
 c	!IF (first) THEN                        ! Initialization, if necessary
 	  a = one - s
 	  p = a/(a + s*EXP(-a))
 	  IF (s < vsmall) THEN
-	    WRITE(*, *) 'SHAPE PARAMETER VALUE TOO SMALL'
-	    STOP
+c	    WRITE(*, *) 'SHAPE PARAMETER VALUE TOO SMALL'
+c	    STOP
 	  END IF
 	  c = one/s
 	  uf = p*(vsmall/a)**s

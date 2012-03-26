@@ -1,14 +1,17 @@
 Package: survrec
-Version: 1.1-7
-Date: 2009-Feb-06
-Depends: R (>= 1.8.0), boot
+Version: 1.2-2
+Date: 2012-Mar-26
+Depends: R (>= 2.12.0), boot
 Title: Survival analysis for recurrent event data
-Author: Juan R González, Edsel A Peña, and Robert L Strawderman 
+Author: Juan R González, Edsel A Peña, and Robert L Strawderman
 Maintainer: Juan R González <jrgonzalez@creal.cat>
-Description: Estimation of survival function for recurrent event
-             data using Peña-Strawderman-Hollander, Whang-Chang
-             estimators and MLE estimation under a Gamma Frailty model.
-License: GPL-2
+Description: Estimation of survival function for recurrent event data
+        using Peña-Strawderman-Hollander, Whang-Chang estimators and
+        MLE estimation under a Gamma Frailty model.
+License: GPL (>= 2)
 URL: http://www.r-project.org
 Encoding: latin1
-Packaged: Fri Feb  6 16:10:00 2009; jrgonzalez
+Packaged: 2013-12-13 06:42:12 UTC; ripley
+Repository: CRAN
+Date/Publication: 2013-12-13 07:46:53
+NeedsCompilation: yes

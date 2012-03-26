@@ -52,9 +52,9 @@ data(colon)
 
 #We will compare the median survival time for three dukes stages
 fit<-survdiffr(Survr(hc,time,event)~as.factor(dukes),data=colon,q=0.5)
-boot.ci(fit$"1")
-boot.ci(fit$"2")
-boot.ci(fit$"3")
+boot.ci(fit$"1", type=c("norm","basic", "perc"))
+boot.ci(fit$"2", type=c("norm","basic", "perc"))
+boot.ci(fit$"3", type=c("norm","basic", "perc"))
 
 # 75th quantile of survival function
 fit<-survdiffr(Survr(hc,time,event)~as.factor(dukes),data=colon,q=0.75)
@@ -63,13 +63,13 @@ quantile(fit$"1"$t,c(0.025,0.975))
 quantile(fit$"2"$t,c(0.025,0.975))
 quantile(fit$"3"$t,c(0.025,0.975))
 
-# We can execute this if there is none Inf value
+# We could execute this if there is none Inf value
 # boot.ci(fit$"1")
 # boot.ci(fit$"2")
 # boot.ci(fit$"3")
 
 
-#We can modify the bootstrap procedure modifiying boot.F parameter
+# We can modify the bootstrap procedure modifiying boot.F parameter
 fit<-survdiffr(Survr(hc,time,event)~as.factor(dukes),data=colon,q=0.5,boot.F="PSH")
 # bootstrap percentile confidence interval
 quantile(fit$"1"$t,c(0.025,0.975))

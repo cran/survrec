@@ -298,7 +298,7 @@ function (formula, data, type="MLEfrailty",...)
     stop("formula.default(object): invalid formula")
      }
 
-    m <- match.call(expand = FALSE)
+    m <- match.call(expand.dots = FALSE)
     m$type<- m$... <- NULL
     Terms <- terms(formula, "strata")
     ord <- attr(Terms, "order")
@@ -341,6 +341,8 @@ function (formula, data, type="MLEfrailty",...)
 "survdiffr" <-
 function (formula, data, q, B=500, boot.F="WC",boot.G="none",...) 
 {
+   aux <- runif(1)
+
    method.F <- charmatch(boot.F, c("PSH","WC", "semiparametric"), nomatch= 0)
    if(method.F == 0)
 	{
@@ -378,7 +380,7 @@ function (formula, data, q, B=500, boot.F="WC",boot.G="none",...)
     stop("formula.default(object): invalid formula")
      }
 
-    m <- match.call(expand = FALSE)
+    m <- match.call(expand.dots = FALSE)
     m$q<-  m$B<-  m$boot.F<- m$... <- NULL
     Terms <- terms(formula, "strata")
     ord <- attr(Terms, "order")
@@ -778,10 +780,15 @@ else
 }
 
 
+
 ############ First.lib ###############
 
-.First.lib <- function(lib, pkg){
-   require(boot)
+.onLoad <- function(lib, pkg){
    library.dynam("survrec", pkg, lib)
 }
+
+.onUnload <- function(libpath)
+    library.dynam.unload("survrec", libpath)
+
+
 ############ End of .First.lib ###############

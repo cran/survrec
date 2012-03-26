@@ -1128,21 +1128,21 @@ C     ON FIRST CALL, IF NO DATA UNCOMMENTED, TEST MACHINE TYPES.
                   CALL I1MCRY(LOG10(1), J, 16383, 10100890, 8715215)
                   CALL I1MCRY(LOG10(2), J, 0, 16226447, 9001388)
                ELSE
-                  WRITE(*,9000)
-                  STOP 779
+c                  WRITE(*,9000)
+c                  STOP 779
                   END IF
             ELSE
-               WRITE(*,9000)
-               STOP 779
+c               WRITE(*,9000)
+c               STOP 779
                END IF
             END IF
          SC = 987
          END IF
 *    SANITY CHECK
-      IF (DMACH(4) .GE. 1.0D0) STOP 778
+c      IF (DMACH(4) .GE. 1.0D0) STOP 778
       IF (I .LT. 1 .OR. I .GT. 5) THEN
-         WRITE(*,*) 'D1MACH(I): I =',I,' is out of bounds.'
-         STOP
+c         WRITE(*,*) 'D1MACH(I): I =',I,' is out of bounds.'
+c         STOP
          END IF
       D1MACH = DMACH(I)
       RETURN
